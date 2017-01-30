@@ -1,0 +1,29 @@
+#!/bin/bash
+
+function decode()
+{
+  echo $(TIMEFORMAT="(%3U + %3S)" ; \
+       { time python2.7 decode 1>$1 2>/dev/null ; } 2>&1) \
+       "* 1000" | bc -l
+}
+
+function compute_model_score()
+{
+  python2.7 compute-model-score < $1 2>/dev/null \
+            | grep -o "Total corpus log probability (LM+TM): .*" \
+            | cut -d' ' -f6
+}
+
+ss='1 5 10 50 100 500 1000'
+ks='1 5 10 50 100'
+
+touch try-parameters.log
+
+for k in $ks; do
+    for s in $ss; do
+        conf="output.s=$s.k=$k"  
+        echo $conf >> try-parameters.log
+        decode $conf >> try-parameters.log
+        compute_model_score $conf >> try-parameters.log
+    done
+done

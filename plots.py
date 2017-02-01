@@ -11,7 +11,7 @@ def chunk(l, n):
 
 def parse_conf(conf):
     # Parse a configuration string.
-    m = re.match("(.*)\.s=(\d+).k=(\d+)", conf)
+    m = re.match("data/default\.s=(\d+).k=(\d+)", conf)
     return (int(m.group(2)), int(m.group(3)))
 
 with open("try-parameters.log", 'r') as data_file:

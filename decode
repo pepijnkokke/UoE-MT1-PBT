@@ -96,32 +96,25 @@ def extend_state(s, f):
         for new_i in xrange(new_j+1,len(f)+1):
           if f[new_j:new_i] in tm:
             for phrase in tm[f[new_j:new_i]]:
-              new_s, logprob, phrase = update_lm_state(
+              yield update_lm_state(
                 state(k=new_k, j=new_j, i=new_i, lm_state=s.lm_state),
                 phrase, is_end=new_i == len(f))
-              report(s, new_s, f)
-              yield (new_s, logprob, phrase)
 
   # Extend the state by filling a gap.
   else:
     assert f[s.k:s.j] in tm, \
       "%r is not present in %r" % (f[s.k:s.j], tm)
     for phrase in tm[f[s.k:s.j]]:
-      new_s, logprob, phrase = update_lm_state(
+      yield update_lm_state(
         state(k=0, j=0, i=s.i, lm_state=s.lm_state), phrase)
-      report(s, new_s, f)
-      yield (new_s, logprob, phrase)
 
   # Extend the state by translating a suffix.
   for new_i in xrange(s.i+1,len(f)+1):
     if f[s.i:new_i] in tm:
       for phrase in tm[f[s.i:new_i]]:
-        new_s, logprob, phrase = update_lm_state(
+        yield update_lm_state(
           state(k=s.k, j=s.j, i=new_i, lm_state=s.lm_state),
           phrase, is_end=new_i == len(f))
-        report(s, new_s, f)
-        yield (new_s, logprob, phrase)
-
 
 ########################################################################
 # End of functions requiring modification

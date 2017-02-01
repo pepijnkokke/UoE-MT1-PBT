@@ -69,17 +69,6 @@ def update_lm_state(s, phrase, is_end=False):
   new_s = state(k=s.k, j=s.j, i=s.i, lm_state=lm_state)
   return (new_s, logprob, phrase)
 
-def report(s1, s2, f):
-  sys.stderr.write("%s (%d) -> %s (%d)\n" % \
-    (show_state(s1, f), assign_stack(s1), show_state(s2, f), assign_stack(s2)))
-
-def show_state(s, f):
-  if s.k == 0 and s.j == 0:
-    return ' '.join(f[0:s.i])
-  else:
-    return '%s[%s]%s' % \
-      (' '.join(f[0:s.k] + ('',)), ' '.join(f[s.k:s.j]), ' '.join(('',) + f[s.j:s.i]))
-
 # Given an input consisting of partial translation state s and
 # associated source sentence f, this function should return a list of
 # all possible extensions to it. Each extension must be a tuple

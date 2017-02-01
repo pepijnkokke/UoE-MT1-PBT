@@ -18,8 +18,8 @@ tm = models.TM(opts.tm, opts.k)
 lm = models.LM(opts.lm)
 french = [tuple(line.strip().split()) for line in open(opts.input).readlines()[:opts.num_sents]]
 
-# tm should translate unknown tokens by copying them to the output with 
-# probability 1. This is a sensible strategy when translating between 
+# tm should translate unknown tokens by copying them to the output with
+# probability 1. This is a sensible strategy when translating between
 # languages in Latin script since unknown tokens are often names or numbers.
 for word in set(sum(french,())):
   if (word,) not in tm:
@@ -39,7 +39,8 @@ for word in set(sum(french,())):
 # always the words from 1 to i). Field lm_state stores the language model
 # conditioning context that should be used to compute the probability of
 # the next English word in the translation.
-state = namedtuple("state", "i, lm_state")
+state = namedtuple("state", "i, lm_state, gap")
+state.__new__.__defaults__ = (None,)
 
 # generate an initial hypothesis
 def initial_state():
@@ -53,12 +54,18 @@ def assign_stack(s):
 # associated source sentence f, this function should return a list of
 # all possible extensions to it. Each extension must be a tuple
 # of the form (new_s, logprob, phrase), in which new_s is a new state
-# object, and the edge from s to new_s should be labeled by phrase 
+# object, and the edge from s to new_s should be labeled by phrase
 # with weight logprob.
+# It is always possible to extend the partial translation state with
+# a suffix. Furthermore, the partial translation state s is either
+# gapped or ungapped. If it is gapped, the state can be extended by
+# filling the gap. If it is ungapped, the state can be extended by
+# introducing a gap.
 def extend_state(s, f):
   for j in xrange(s.i+1,len(f)+1):
-    if f[s.i:j] in tm: 
+    if f[s.i:j] in tm:
       for phrase in tm[f[s.i:j]]:
+
         # edge weight includes p_TM
         logprob = phrase.logprob
 
@@ -68,7 +75,7 @@ def extend_state(s, f):
           (lm_state, word_logprob) = lm.score(lm_state, word)
           logprob += word_logprob
         # special case: end of sentence
-        logprob += lm.end(lm_state) if j == len(f) else 0.0 
+        logprob += lm.end(lm_state) if j == len(f) else 0.0
 
         # finally, return the new hypothesis
         new_s = state(j, lm_state)
@@ -80,9 +87,9 @@ def extend_state(s, f):
 
 # The following code implements a generic stack decoding algorithm
 # that is agnostic to the form of a partial translation state.
-# It does however assume that all states in stacks[i] represent 
+# It does however assume that all states in stacks[i] represent
 # translations of exactly i source words (though they can be any words).
-# It shouldn't be necessary to modify this code if you are only 
+# It shouldn't be necessary to modify this code if you are only
 # changing the dynamic program, but you should understand how it works.
 sys.stderr.write("Decoding %s...\n" % (opts.input,))
 for f in french:
@@ -96,15 +103,15 @@ for f in french:
   for stack in stacks[:-1]:
     for h in sorted(stack.itervalues(),key=lambda h: -h.logprob)[:opts.s]: # prune
       for (new_state, logprob, phrase) in extend_state(h.state, f):
-        new_h = hypothesis(logprob=h.logprob + logprob, 
-                           predecessor=h, 
-                           phrase=phrase, 
+        new_h = hypothesis(logprob=h.logprob + logprob,
+                           predecessor=h,
+                           phrase=phrase,
                            state=new_state)
         j = assign_stack(new_state)
         if new_state not in stacks[j] or stacks[j][new_state].logprob < new_h.logprob: # second case is recombination
           stacks[j][new_state] = new_h
   winner = max(stacks[-1].itervalues(), key=lambda h: h.logprob)
-  def extract_english(h): 
+  def extract_english(h):
     return "" if h.predecessor is None else "%s%s " % (extract_english(h.predecessor), h.phrase.english)
   print extract_english(winner)
 
@@ -113,5 +120,5 @@ for f in french:
     def extract_tm_logprob(h):
       return 0.0 if h.predecessor is None else h.phrase.logprob + extract_tm_logprob(h.predecessor)
     tm_logprob = extract_tm_logprob(winner)
-    sys.stderr.write("LM = %f, TM = %f, Total = %f\n" % 
+    sys.stderr.write("LM = %f, TM = %f, Total = %f\n" %
       (winner.logprob - tm_logprob, tm_logprob, winner.logprob))

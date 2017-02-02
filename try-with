@@ -3,7 +3,7 @@
 function decode()
 {
   echo $(TIMEFORMAT="(%3U + %3S)" ; \
-       { time python2.7 decode -s $1 -k $2 1>$3 2>/dev/null ; } 2>&1) \
+       { time python2.7 $1.py -s $2 -k $3 1>$4 2>/dev/null ; } 2>&1) \
        "* 1000" | bc -l
 }
 
@@ -14,8 +14,8 @@ function compute_model_score()
             | cut -d' ' -f6
 }
 
-ss=(20)
-ks=(10)
+ss=(1 5 10 50 100 500 1000)
+ks=(1 5 10 50 100)
 
 cur=0
 tot=$(echo "${#ss[@]} * ${#ks[@]}" | bc -l)
@@ -24,10 +24,10 @@ for (( i=0; i<${#ks[@]}; i++ )); do
     for (( j=0; j<${#ss[@]}; j++ )); do
         k=${ks[$i]}
         s=${ss[$j]}
-        conf="output.s=$s.k=$k"  
-        echo $conf >> try-parameters.log
-        decode $s $k $conf >> try-parameters.log
-        compute_model_score $conf >> try-parameters.log
+        conf="$1.s=$s.k=$k"  
+        echo $conf >> "data/$1.log"
+        decode $1 $s $k "data/$conf" >> "data/$1.log"
+        compute_model_score "data/$conf" >> "data/$1.log"
         cur=$(( cur + 1 ))
         echo "$cur / $tot * 100" | bc -l | xargs printf "\r%-3.f%%"
     done

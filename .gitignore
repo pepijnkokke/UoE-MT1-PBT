@@ -1,0 +1,7 @@
+doc/auto/
+*.aux
+*.fff
+*.lof
+*.log
+*.pdf
+*.synctex.gz

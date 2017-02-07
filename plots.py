@@ -24,11 +24,13 @@ def create_plot(filename):
 
     plt.figure()
     plt.subplot(211)
+    plt.yscale('log')
     plt.xscale('log')
-    plt.ylabel('time in ms')
+    plt.ylabel('time (ms)')
     plt.subplot(212)
     plt.xscale('log')
-    plt.ylabel('score')
+    plt.ylabel('score (log-probability)')
+    plt.xlabel('stack size')
 
     for (i, group) in data:
         confs, times, scores = zip(*group)
@@ -47,3 +49,4 @@ def create_plot(filename):
 
 create_plot('default')
 create_plot('part2')
+create_plot('part3')

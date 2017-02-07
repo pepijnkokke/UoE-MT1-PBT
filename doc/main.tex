@@ -21,21 +21,22 @@
 
 \begin{document}
 \begin{questions}
-\question[10]{Experiment with stack pruning parameters. What is their affect on.'..}
+\question[10]{Experiment with stack pruning parameters. What is their affect on...}
 \begin{framed}
 \begin{compactenum}[a.]
 \item log-probabilities:\\
-  The log-probabilities go up with increases in $s$ and $k$, though seems to be no
-  significant increase past either $s > 10$ or $k > 10$. The log-probabilities
-  seem to plateau at around this point.
+  The log-probabilities go up with increases in $s$ and $k$, though there seems
+  to be no significant increase past either $s > 10$ or $k > 10$. The
+  log-probabilities plateau at around this point. 
 \item speed:\\
-  The speed goes down with increases in $s$ and $k$. For $k \leq 10$ the
-  decrease in speed is minimal, but for larger values of $k$, the impact of
-  increasing $s$ gets bigger and bigger.
+  The time seems to go up \emph{at most} linearly with increases in $s$, though
+  the curve gets steeper with increases in $k$. Note: in the graphs, both the
+  time and the stack size are plotted logarithmically.
 \item translations:
 \item maximum log-probability:\\
   The log-probability plateaus at $-1353.247828$.
 \end{compactenum}
+(See figure \ref{fig:exp-baseline}.)
 \end{framed}
 
 
@@ -69,7 +70,7 @@
   \)
   \(\!
   \begin{aligned}
-    &s(0,0,i,e) = \argmax_{s(k,j,i,e')e_{1}\dots e_{n}e}
+    &s(0,0,i,e) = \argmax_{s(k,j,i',e')e_{1}\dots e_{n}e}
     &&\log{p(s(k,j,i',e'))} + \log{\plm{e_{1}\dots e_{n}e \mid e'}}
     \\& &&+
     \begin{cases}
@@ -77,7 +78,7 @@
       &\text{if }k = 0 \land j = 0
       \\
       \log{\ptm{f_{k}\dots f_{j-1} \mid e_{1}\dots e_{n}e}}
-      &\text{otherwise}
+      &\text{if }i' = i
     \end{cases}
     \\
     &s(k,j,i,e) =
@@ -113,39 +114,42 @@
 \question[15] Experiment with stack pruning parameters for Part 2. What is their affect on...
 \begin{framed}
 \begin{compactenum}[a.]
-\item log-probabilities:
+\item log-probabilities:\\
+  The log-probabilities go up with increases in $s$ and $k$, though there seems
+  to be no significant increase past $s > 50$ and $k > 10$. The
+  log-probabilities plateau at this point. 
 \item speed:
+  The time seems to go up \emph{at most} linearly with increases in $s$, though
+  the curve gets steeper with increases in $k$.
 \item translations:
-\item maximum log-probability:
+\item maximum log-probability:\\
+  The log-probability plateaus at $-1300.526262$.
 \end{compactenum}
+(See figure \ref{fig:exp-part2}.)
 \end{framed}
 
 
 \question[10]{Define a new dynamic program for Part 3.}
 \begin{framed}
-  \(\!
-  \begin{aligned}
-    &s(0,0,0,e) =
-    \begin{cases}
-      \epsilon         &\text{if }e = \text{START}\\
-      \text{undefined} &\text{otherwise}
-    \end{cases}
-  \end{aligned}
-  \)
+  For Part 2, our program had the choice of either translating the next phrase,
+  or leaving a hole---of exactly one phrase---and translating a phrase following
+  that. However, if it chooses to leave a hole, it had to translate the hole
+  immediately after, as a consequence of the swapping constraint. 
+  The description of Part 3 implies that \emph{this} program can translate any
+  number of phrases before going back and translating the hole, as long as it
+  never left more than one hole, and never one of more than one phrase. 
+  \\
+  The definition of Part 3 is very similar to that of Part 2, sharing---for
+  starters---the same auxiliary definition and the same basic form of
+  $s(k,j,i,e)$, which I will not repeat here. The only real difference is in the
+  final equation, in which it is now possible to continue translating phrases
+  while there is a hole.
+  \\
   \\
   \(\!
   \begin{aligned}
-    &s(0,0,i,e) = \argmax_{s(k,j,i,e')e_{1}\dots e_{n}e}
-    &&\log{p(s(k,j,i',e'))} + \log{\plm{e_{1}\dots e_{n}e \mid e'}}
-    \\& &&+
-    \begin{cases}
-      \log{\ptm{f_{i'+1}\dots f_{i} \mid e_{1}\dots e_{n}e}}
-      &\text{if }k = 0 \land j = 0
-      \\
-      \log{\ptm{f_{k}\dots f_{j-1} \mid e_{1}\dots e_{n}e}}
-      &\text{otherwise}
-    \end{cases}
-    \\
+    &s(0,0,0,e) = \ldots\\
+    &s(0,0,i,e) = \ldots\\
     &s(k,j,i,e) =
     \argmax_{s(k',j',i',e')e_{1}\dots e_{n}e}
     &&\log{p(s(k',j',i',e'))} + \log{\plm{e_{1}\dots e_{n}e \mid e'}} 
@@ -169,12 +173,41 @@
 
 \question[5]{What is the mapping from hypothesis objects to stacks for Part 3?}
 \begin{framed}
+  Hypothesis objects are mapped to stacks in the same way as in Part 2.
 \end{framed}
 
 
 \addtocounter{question}{1}
 \question[5]{What is the maximum log-probability your Part 3 decoder can obtain? What do you conclude?}
 \begin{framed}
+  $-1278.680068$, with $s = 2000, k = 100$. For further increases of $s$,
+  the score does not improve, and given the fact that the score does not change
+  between $s = 1000, k = 50$ and $s = 1000, k = 100$ I am guessing that further
+  increases of $k$ will not make a difference either.
+  Therefore, this is likely the best log-probability which my Part 3 decoder can
+  obtain, and is significantly better than the top scores for my Part 2 decoder.
+  However, with a runtime of just under half an hour, $s$ is impractically large
+  at this point. Especially since we can get a score of $-1281.046784$ at
+  \emph{one-tenth} the runtime using $s = 500, k = 10$. 
+  \\
+  All in all, our scores tell us that the Part 3 decoder is an improvement over
+  the Part 2 decoder: the difference between the best for Part 3 and Part 2 is
+  about half as big as the difference between Part 2 and Part 1.
+  \\
+  If we think about it from a linguistic perspective, this makes sense. Our
+  swapping decoder would fix a lot of things such as French adjectives, which
+  are binary swaps. Longer distance dependences, which I suppose are less
+  frequent, would still be translated to the wrong position. The thing which may
+  not make sense is that we can only move single phrases. For instance, if we
+  translate from an SVO language to an SOV language, we may want to move a
+  complex object. We would be able to do this \emph{only} if the object, in its
+  entirety, were present in the phrase table. A program allowing a sequence of
+  phrases to be displaced might work better, but also would massively inflate
+  the number of possible translations. A program which uses swaps in the parse
+  tree would perform better, but we cannot just assume we have a parse tree.
+  \\
+  \\
+  (See figure \ref{fig:exp-part3}. Data for $s > 1000$ not included.)
 \end{framed}
 \end{questions}
 

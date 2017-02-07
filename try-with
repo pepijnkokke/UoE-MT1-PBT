@@ -14,8 +14,8 @@ function compute_model_score()
             | cut -d' ' -f6
 }
 
-ss=(1 5 10 50 100 500 1000)
-ks=(50 100)
+ss=(3000)
+ks=(100)
 
 cur=0
 tot=$(echo "${#ss[@]} * ${#ks[@]}" | bc -l)

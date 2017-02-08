@@ -27,16 +27,16 @@
 \item log-probabilities:\\
   The log-probabilities go up with increases in $s$ and $k$, though there seems
   to be no significant increase past either $s > 10$ or $k > 10$. The
-  log-probabilities plateau at around this point. 
+  log-probabilities plateau at around this point. (See figure \ref{fig:exp-baseline}.)
 \item speed:\\
   The time seems to go up \emph{at most} linearly with increases in $s$, though
   the curve gets steeper with increases in $k$. Note: in the graphs, both the
   time and the stack size are plotted logarithmically.
-\item translations:
+\item translations:\\
+  Most of the translations are ungrammatical, and very hard to understand.
 \item maximum log-probability:\\
   The log-probability plateaus at $-1353.247828$.
 \end{compactenum}
-(See figure \ref{fig:exp-baseline}.)
 \end{framed}
 
 
@@ -128,15 +128,19 @@
 \item log-probabilities:\\
   The log-probabilities go up with increases in $s$ and $k$, though there seems
   to be no significant increase past $s > 50$ and $k > 10$. The
-  log-probabilities plateau at this point. 
+  log-probabilities plateau at this point. (See figure \ref{fig:exp-part2}.) 
 \item speed:
   The time seems to go up \emph{at most} linearly with increases in $s$, though
   the curve gets steeper with increases in $k$.
-\item translations:
+\item translations:\\
+  The good news is that we get ``selection committee'' now! There are some other
+  minor improvements, such as $\text{``you can see you''}\rightarrow\text{``you
+    will see''}$ and $\text{``and I will believe''}\rightarrow\text{``and I
+    believe it''}$. Minor shining lights aside, most of it is still
+  incomprehensible and ungrammatical.
 \item maximum log-probability:\\
   The log-probability plateaus at $-1300.526262$.
 \end{compactenum}
-(See figure \ref{fig:exp-part2}.)
 \end{framed}
 
 
@@ -210,24 +214,27 @@
   \\
   All in all, our scores tell us that the Part 3 decoder is an improvement over
   the Part 2 decoder: the difference between the best for Part 3 and Part 2 is
-  about half as big as the difference between Part 2 and Part 1.
+  about half as big as the difference between Part 2 and Part 1. Looking at the
+  translations, however, it is hard to see an improvement. Some things give the
+  impression of being \emph{more} garbled. Overall, it does not feel like a
+  tremendous improvement. 
   \\
   If we think about it from a linguistic perspective, this makes sense. Our
-  swapping decoder would fix a lot of things such as French adjectives, which
-  are binary swaps. Longer distance dependences, which I suppose are less
-  frequent, would still be translated to the wrong position. The thing which may
-  not make sense is that we can only move single phrases. For instance, if we
-  translate from an SVO language to an SOV language, we may want to move a
-  complex object. We would be able to do this \emph{only} if the object, in its
-  entirety, were present in the phrase table. A program allowing a sequence of
-  phrases to be displaced might work better, but also would massively inflate
-  the number of possible translations. A program which uses swaps in the parse
-  tree would perform better, but we cannot just assume we have a parse tree.
+  binary swapping decoder would fix some things, such as the common cases of
+  French adjectives. Longer distance movements would still be translated to the
+  wrong position.
+  In our Part 3 decoder, we can only move single phrases. For instance, if we
+  translate from an SOV language to an SVO language, many translations will
+  involve moving a noun phrase (i.e.\ the object). We would be able to do this
+  \emph{only} if the object, in its entirety, were present in the phrase table.
+  A program allowing a sequence of phrases to be displaced might work better,
+  but also would massively inflate the number of possible translations. A
+  program which uses swaps in the parse tree would perform better, but we cannot
+  just assume we have a parse tree. 
   \\
   (See figure \ref{fig:exp-part3}. Data for $s > 1000$ not included.)
 \end{framed}
 \end{questions}
-
 
 % figures
 

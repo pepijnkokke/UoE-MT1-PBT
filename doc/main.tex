@@ -98,6 +98,17 @@
 
 \question[5]{What is the complexity of your Part 2 decoder? Explain your reasoning.}
 \begin{framed}
+  There are $2^{n-1}$ different segmentations for a sentence of length $n$.
+  For each of these segmentations, we produce a number of translations by
+  swapping adjacent phrases, equal to the $m^{\text{th}}$ Fibonacci number
+  $F_m$, where $m$ is the number of phrases in the segmentation.
+  Since $F_m = \frac{1}{\sqrt{5}}(\frac{1+\sqrt{5}}{2})^m$ is exponential, and
+  there are an exponential number of segmentations, the total number of
+  translations for a sentence is going to be double exponential, i.e.\
+  $O(2^{2^n})$, assuming a constant size for the number of translations per
+  phrase.
+  Practically, however, the complexity is further bounded by the stack size used
+  by the beam search implementation.
 \end{framed}
 
 
@@ -105,7 +116,7 @@
 \begin{framed}
   Hypothesis objects are mapped to stacks as $s(k,j,i,e)\mapsto i - (k - j)$, as
   we need to subtract the number of words in the gap ($k - j$) from the number
-  of words covered ($i$). Since $h(i,e) = s(0,0,i,e)$, $h(i,e)\mapsto i$ as in
+  of words covered $i$. Since $h(i,e) = s(0,0,i,e)$, $h(i,e)\mapsto i$ as in
   the previous model.
 \end{framed}
 
@@ -168,6 +179,13 @@
 
 \question[5]{What is the computational complexity of your Part 3 decoder?}
 \begin{framed}
+  There are $2^{n-1}$ different segmentations for a sentence of length $n$. For
+  each of these segmentations, we produce a number of translations by swapping
+  phrases, with the restriction that the arcs of swapping cannot cross or nest.
+  We can describe this as a recurrence relation: we choose an arc of length $i$,
+  and then compute the number of possibilities for the remainder, or $a_0 = 1,
+  a_n = \sum_{0 < i \leq n}a_{n-i}$. This works out to be precisely $2^n$, once
+  again giving us a double exponential number of translations, i.e.\ $O(2^{2^n})$. 
 \end{framed}
 
 
@@ -206,7 +224,6 @@
   the number of possible translations. A program which uses swaps in the parse
   tree would perform better, but we cannot just assume we have a parse tree.
   \\
-  \\
   (See figure \ref{fig:exp-part3}. Data for $s > 1000$ not included.)
 \end{framed}
 \end{questions}
@@ -225,7 +242,7 @@
 \begin{figure}
   \centering
   \includegraphics{fig-part2}
-  \caption[Experiment (baseline).]{Experiment with stack pruning parameters
+  \caption[Experiment (part2).]{Experiment with stack pruning parameters
     (part2).}
   \label{fig:exp-part2}
 \end{figure}
@@ -233,7 +250,7 @@
 \begin{figure}
   \centering
   \includegraphics{fig-part3}
-  \caption[Experiment (baseline).]{Experiment with stack pruning parameters
+  \caption[Experiment (part3).]{Experiment with stack pruning parameters
     (part3).}
   \label{fig:exp-part3}
 \end{figure}
